@@ -41,11 +41,14 @@ export default class Logger {
         // Write in the file
         appendFileSync(file, state + " - [" + className + "] " + text + "\n")
 
-        // Send the log on discord through a webhook
-        try {
-            await axios.post(this.config.discord.logWebhook, {content: "__**" + state + "**__ - " + dateToHumanFormat(new Date()) + " - [" + className + "] " + text})
-        } catch (e) {
-            appendFileSync(file, "WARNING - [" + this.constructor.name + "] " + e.message + "\n")
+        // If the discord webhook is disabled
+        if(!this.config.discord.disableWebhook) {
+            // Send the log on discord through a webhook
+            try {
+                await axios.post(this.config.discord.logWebhook, {content: "__**" + state + "**__ - " + dateToHumanFormat(new Date()) + " - [" + className + "] " + text})
+            } catch (e) {
+                appendFileSync(file, "WARNING - [" + this.constructor.name + "] " + e.message + "\n")
+            }
         }
 
         return true

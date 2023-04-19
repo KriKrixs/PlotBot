@@ -2,7 +2,8 @@
   "discord": {
     "clientId": "",
     "token": "",
-    "logWebhook": ""
+    "logWebhook": "",
+    "disableWebhook": false
   },
   "mongodb": {
     "url": "",
@@ -10,5 +11,11 @@
   },
   "steam": {
     "apiKey": ""
-  }
+  },
+  "csgo": {
+      "gsi": {
+        "port": 33000,
+        "authToken": ""
+      }
+    }
 }

@@ -15,6 +15,9 @@ import Logger from "./loggers/Logger.js"
 /* Config */
 import config from "./config.json" assert {"type": "json"}
 
+/* Servers */
+import GameStateIntegrationServer from "./servers/GameStateIntegrationServer.js";
+
 /**
  * PlotBot class
  */
@@ -40,6 +43,10 @@ class PlotBot {
             commands: new CommandsManager(this)
         }
 
+        this.servers    = {
+            csgogsi: new GameStateIntegrationServer(this)
+        }
+
         this.init()
     }
 
@@ -53,6 +60,9 @@ class PlotBot {
         // Login the discord & mongo client
         this.clients.discord.loginClient()
         await this.clients.mongo.loginClient()
+
+        // Listen for CSGO GSI Call
+        this.servers.csgogsi.listen()
 
         // When the discord client is ready
         this.clients.discord.getClient().once(Events.ClientReady, async () => {
