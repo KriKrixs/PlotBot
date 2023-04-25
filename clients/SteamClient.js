@@ -1,5 +1,7 @@
 /* Modules */
 import axios from "axios"
+import SteamUser from "steam-user"
+import GlobalOffensive from "globaloffensive"
 
 /**
  * SteamClient class
@@ -13,6 +15,9 @@ export default class SteamClient {
     constructor(opt) {
         this.config     = opt.config
         this.loggers    = opt.loggers
+
+        this.steamUser  = new SteamUser()
+        this.csgo       = new GlobalOffensive(this.steamUser)
     }
 
     /**
@@ -99,5 +104,20 @@ export default class SteamClient {
 
             return false
         }
+    }
+
+    async login() {
+        await this.steamUser.logOn({
+            accountName: this.config.steam.username,
+            password: this.config.steam.password,
+        })
+    }
+
+    getSteamUserClient() {
+        return this.steamUser
+    }
+
+    getCsgoClient() {
+        return this.csgo
     }
 }

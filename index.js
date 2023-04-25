@@ -1,5 +1,7 @@
 /* Modules */
 import { ActivityType, Events } from "discord.js"
+import SteamUser from "steam-user";
+import CSGO from "globaloffensive"
 
 /* Clients */
 import DiscordClient from "./clients/DiscordClient.js"
@@ -14,6 +16,7 @@ import Logger from "./loggers/Logger.js"
 
 /* Config */
 import config from "./config.json" assert {"type": "json"}
+import GlobalOffensive from "globaloffensive";
 
 /**
  * PlotBot class
@@ -40,6 +43,9 @@ class PlotBot {
             commands: new CommandsManager(this)
         }
 
+        this.steamUser  = new SteamUser()
+        this.csgo       = new CSGO(this.steamUser)
+
         this.init()
     }
 
@@ -53,6 +59,35 @@ class PlotBot {
         // Login the discord & mongo client
         this.clients.discord.loginClient()
         await this.clients.mongo.loginClient()
+
+        this.steamUser.logOn({
+            anonymous: true
+        })
+
+        // this.csgo.on("debug", async (e) => {
+        //     await this.loggers.logger.log("INFO", this.constructor.name, e.message)
+        // })
+        //
+        // this.steamUser.on("error", async (e) => {
+        //     await this.loggers.logger.log("CRITICAL", this.constructor.name, e.message)
+        // })
+
+
+
+        this.steamUser.on("loggedOn", async () => {
+            await this.loggers.logger.log("INFO", this.constructor.name, "Logged into steam")
+
+            this.steamUser.setPersona(SteamUser.EPersonaState.Online)
+            this.steamUser.gamesPlayed([730])
+
+            this.csgo.on("connectionStatus", async (e) => {
+                await this.loggers.logger.log("INFO", this.constructor.name, e.message)
+
+                this.csgo.on("connectedToGC", async () => {
+                    await this.loggers.logger.log("INFO", this.constructor.name, "Connected to CS Game Coordinator")
+                })
+            })
+        })
 
         // When the discord client is ready
         this.clients.discord.getClient().once(Events.ClientReady, async () => {
